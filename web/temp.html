@@ -1,0 +1,43 @@
+<html>
+
+<head>
+    <link rel="icon" type="image/x-icon" href="./favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="./lib/css/w3.css">
+    <link rel="stylesheet" type="text/css" href="./lib/css/jquery.atwho.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+
+<body class="w3-content" style="max-width: 100%;">
+
+
+    <div class="w3-card w3-display-container w3-margin-top">
+        <header class="w3-container w3-blue">
+            <h5>Code</h5>
+            <span onclick="this.parentElement.parentElement.style.display='none'" class=" w3-button w3-display-topright">X</span>
+        </header>
+        <div class="w3-pale-blue w3-leftbar w3-border-blue" id="editor" contentEditable="true"></div>
+
+    </div>
+    <div id="caretposition"></div>
+    <div id="completion" style="width:300px; position: absolute;margin: 0%" class="w3-ul w3-card-2  w3-blue-grey">
+        <ul class="w3-ul w3-card-4 w3-hoverable w3-small">
+            <li style="background-color: #ccc;" class="w3-padding-small w3-display-container">Jill<span class="w3-padding-small w3-button w3-display-right fa fa-info-circle"></span></li>
+            <li class="w3-padding-small w3-display-container">test<span class="w3-padding-small w3-button w3-display-right fa fa-info-circle"></span></li>
+            <li class="w3-padding-small w3-display-container">dass<span class="w3-padding-small w3-button w3-display-right fa fa-info-circle"></span></li>
+        </ul>
+    </div>
+
+
+
+
+    <script src="./lib/js/jquery.js"></script>
+    <script src="./lib/js/jquery.caret.js"></script>
+    <script src="./lib/js/jquery.atwho.js"></script>
+
+    <script src="./parser/input_stream.js"></script>
+    <script src="./parser/parser.js"></script>
+    <script src="./parser/editor.js"></script>
+</body>
+
+</html>

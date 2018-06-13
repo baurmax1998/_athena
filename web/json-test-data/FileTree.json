@@ -1,0 +1,37 @@
+[{
+        "TagID": 1,
+        "Tag": {
+            "ID": 1,
+            "CreatedAt": "2018-05-27T03:23:02.556404242+02:00",
+            "UpdatedAt": "2018-05-27T03:23:02.556404242+02:00",
+            "DeletedAt": null,
+            "Name": "test"
+        },
+        "ItemID": 1,
+        "Item": {
+            "ID": 1,
+            "CreatedAt": "2018-05-27T02:43:43.445067431+02:00",
+            "UpdatedAt": "2018-05-27T02:43:43.447101313+02:00",
+            "DeletedAt": null,
+            "DType": "F"
+        }
+    },
+    {
+        "TagID": 2,
+        "Tag": {
+            "ID": 2,
+            "CreatedAt": "2018-05-27T03:23:18.192547161+02:00",
+            "UpdatedAt": "2018-05-27T03:23:18.192547161+02:00",
+            "DeletedAt": null,
+            "Name": "hallo"
+        },
+        "ItemID": 1,
+        "Item": {
+            "ID": 1,
+            "CreatedAt": "2018-05-27T02:43:43.445067431+02:00",
+            "UpdatedAt": "2018-05-27T02:43:43.447101313+02:00",
+            "DeletedAt": null,
+            "DType": "F"
+        }
+    }
+]
