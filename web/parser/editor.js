@@ -78,6 +78,7 @@ $completion.hide();
 
 $.ajax({
     url: "./json-test-data/demo_test.js",
+    url: "./json-test-data/lamda-lang.txt",
     success: function(result) {
         result = result.replace(/    /g, "\t")
         $editable.text(result);

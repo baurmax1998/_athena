@@ -1,78 +1,140 @@
-var js_keywords = {
-    if: {
+var lambda_lang = (function() {
+    var lang = {
+        types: [{
+            name: "comment",
+            start_with: "#",
+            read: function(input) {
+                read_while(input, function(ch) { return ch != "\n" });
+                input.next();
+            },
+        }, {
+            name: "num",
+            start_with: /[0-9]/i,
+            read: function(input) {
+                var start_with = this.start_with;
+                var has_dot = false;
+                var number = read_while(input, function(ch) {
+                    if (ch == ".") {
+                        if (has_dot) return false;
+                        has_dot = true;
+                        return true;
+                    }
+                    return ch.match(start_with);
+                });
+                return { type: "num", value: parseFloat(number) };
+            }
+        }, {
+            name: "str",
+            start_with: "\"",
+            read: function(input) {
+                return { type: "str", value: read_escaped(input, '"') };
+            }
+        }, {
+            name: "bool"
+        }, {
+            name: "var",
+            start_with: /[a-z]/i,
+            read: function(input) {
+                var start_with = this.start_with;
+                var id = read_while(input, function(ch) {
+                    return ch.match(start_with) || "?!-<>=0123456789".indexOf(ch) >= 0
+                });
 
-    }
+                return {
+                    type: is_keyword(id) ? "kw" : "var",
+                    value: id
+                };
+            },
 
-}
-
-
-function TokenStream(input) {
-    var current = null;
-    var keywords = " if then else lambda true false ";
-    return {
-        next: next,
-        peek: peek,
-        eof: eof,
-        croak: input.croak
+        }],
+        keywords: [{
+            matcher: "if",
+        }, {
+            matcher: "lambda"
+        }, {
+            matcher: "than"
+        }, {
+            matcher: "else"
+        }, {
+            matcher: "true"
+        }, {
+            matcher: "false"
+        }],
+        operators: [{
+            matcher: "=",
+            order: 1
+        }, {
+            matcher: "||",
+            order: 2
+        }, {
+            matcher: "&&",
+            order: 3
+        }, {
+            matcher: "<",
+            order: 7
+        }, {
+            matcher: ">",
+            order: 7
+        }, {
+            matcher: "<=",
+            order: 7
+        }, {
+            matcher: ">=",
+            order: 7
+        }, {
+            matcher: "==",
+            order: 7
+        }, {
+            matcher: "!=",
+            order: 7
+        }, {
+            matcher: "+",
+            order: 10
+        }, {
+            matcher: "-",
+            order: 10
+        }, {
+            matcher: "*",
+            order: 20
+        }, {
+            matcher: "/",
+            order: 20
+        }, {
+            matcher: "%",
+            order: 20
+        }],
+        punces: [{
+            matcher: ","
+        }, {
+            matcher: ";"
+        }, {
+            matcher: "("
+        }, {
+            matcher: ")"
+        }, {
+            matcher: "{"
+        }, {
+            matcher: "}"
+        }, {
+            matcher: "["
+        }, {
+            matcher: "]"
+        }],
+        whitespaces: " \t\n"
     };
 
     function is_keyword(x) {
-        return keywords.indexOf(" " + x + " ") >= 0;
-    }
-
-    function is_digit(ch) {
-        return /[0-9]/i.test(ch);
-    }
-
-    function is_id_start(ch) {
-        return /[a-z]/i.test(ch);
-    }
-
-    function is_id(ch) {
-        return is_id_start(ch) || "?!-<>=0123456789".indexOf(ch) >= 0;
-    }
-
-    function is_op_char(ch) {
-        return "+-*/%=&|<>!".indexOf(ch) >= 0;
-    }
-
-    function is_punc(ch) {
-        return ",;(){}[]".indexOf(ch) >= 0;
-    }
-
-    function is_whitespace(ch) {
-        return " \t\n".indexOf(ch) >= 0;
-    }
-
-    function read_while(predicate) {
-        var str = "";
-        while (!input.eof() && predicate(input.peek()))
-            str += input.next();
-        return str;
-    }
-
-    function read_number() {
-        var has_dot = false;
-        var number = read_while(function(ch) {
-            if (ch == ".") {
-                if (has_dot) return false;
-                has_dot = true;
+        for (let i = 0; i < lang.keywords.length; i++) {
+            const element = lang.keywords[i];
+            if (element.matcher === x) {
                 return true;
             }
-            return is_digit(ch);
-        });
-        return { type: "num", value: parseFloat(number) };
+        }
+        return false;
     }
 
-    function read_ident() {
-        var id = read_while(is_id);
-        return {
-            type: is_keyword(id) ? "kw" : "var",
-            value: id
-        };
-    }
 
-    function read_escaped(end) {
+    function read_escaped(input, end) {
         var escaped = false,
             str = "";
         input.next();
@@ -92,51 +154,8 @@ function TokenStream(input) {
         return str;
     }
 
-    function read_string() {
-        return { type: "str", value: read_escaped('"') };
-    }
-
-    function skip_comment() {
-        read_while(function(ch) { return ch != "\n" });
-        input.next();
-    }
-
-    function read_next() {
-        read_while(is_whitespace);
-        if (input.eof()) return null;
-        var ch = input.peek();
-        if (ch == "#") {
-            skip_comment();
-            return read_next();
-        }
-        if (ch == '"') return read_string();
-        if (is_digit(ch)) return read_number();
-        if (is_id_start(ch)) return read_ident();
-        if (is_punc(ch)) return {
-            type: "punc",
-            value: input.next()
-        };
-        if (is_op_char(ch)) return {
-            type: "op",
-            value: read_while(is_op_char)
-        };
-        input.croak("Can't handle character: " + ch);
-    }
-
-    function peek() {
-        return current || (current = read_next());
-    }
-
-    function next() {
-        var tok = current;
-        current = null;
-        return tok || read_next();
-    }
-
-    function eof() {
-        return peek() == null;
-    }
-}
+    return lang;
+})();
 
 function parse(input) {
     var PRECEDENCE = {
@@ -156,7 +175,13 @@ function parse(input) {
         "%": 20,
     };
     var FALSE = { type: "bool", value: false };
-    return parse_toplevel();
+
+    var prog = [];
+    while (!input.eof()) {
+        prog.push(parse_expression());
+        if (!input.eof()) skip_punc(";");
+    }
+    return { type: "prog", prog: prog };
 
     function is_punc(ch) {
         var tok = input.peek();
@@ -286,7 +311,7 @@ function parse(input) {
             if (is_punc("{")) return parse_prog();
             if (is_kw("if")) return parse_if();
             if (is_kw("true") || is_kw("false")) return parse_bool();
-            if (is_kw("lambda") || is_kw("Î»")) {
+            if (is_kw("lambda")) {
                 input.next();
                 return parse_lambda();
             }
@@ -295,15 +320,6 @@ function parse(input) {
                 return tok;
             unexpected();
         });
-    }
-
-    function parse_toplevel() {
-        var prog = [];
-        while (!input.eof()) {
-            prog.push(parse_expression());
-            if (!input.eof()) skip_punc(";");
-        }
-        return { type: "prog", prog: prog };
     }
 
     function parse_prog() {
